@@ -1,5 +1,6 @@
+'use client'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 type User = {
   id: number
@@ -24,7 +25,7 @@ export default function ProfilePage() {
       setLoading(false)
     }
     fetchUser()
-  }, [])
+  }, [router]);
 
   if (loading) {
     return <p className="text-center mt-10">読み込み中...</p>
@@ -40,6 +41,16 @@ export default function ProfilePage() {
       <p><strong>ID:</strong> {user.id}</p>
       <p><strong>Email:</strong> {user.email}</p>
       <p><strong>登録日:</strong> {new Date(user.createdAt).toLocaleString()}</p>
+
+      <button
+        onClick={async () => {
+          await fetch('api/auth/logout', {method: 'POST' })
+          location.href = '/auth/login'
+        }}
+        className="mt-6 bg-red-500 text-white px-4 py-2 rounded"
+        >
+          ログアウト
+        </button>
     </div>
   )
 }

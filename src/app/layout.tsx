@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+/*import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -31,4 +31,20 @@ export default function RootLayout({
       </body>
     </html>
   );
+}*/
+
+// src/app/layout.tsx
+import '../../styles/globals.css' // Tailwind の読み込みをここで行う
+
+export const metadata = {
+  title: 'My App',
+  description: 'Auth-enabled Next.js App',
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="ja">
+      <body className="bg-gray-50 text-gray-800">{children}</body>
+    </html>
+  )
 }
