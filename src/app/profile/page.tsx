@@ -11,6 +11,7 @@ type User = {
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  
   const router = useRouter()
 
   useEffect(() => {
@@ -50,7 +51,16 @@ export default function ProfilePage() {
         className="mt-6 bg-red-500 text-white px-4 py-2 rounded"
         >
           ログアウト
-        </button>
+      </button>
+
+      <button
+        onClick={() => 
+          router.push('profile/posts')}
+          className="px-4 py-2 bg-blue-600 text-white rounded"
+          >
+          新規投稿
+      </button>
+
     </div>
   )
 }
