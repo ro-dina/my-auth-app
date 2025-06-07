@@ -21,6 +21,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null)
   const [content, setContent] = useState('')
   const [posts, setPosts] = useState<Post[]>([])
+  const [ visibility, setVisibility] = useState('public')
 
   const router = useRouter()
 
@@ -52,10 +53,11 @@ export default function ProfilePage() {
     const res = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, visibility }),
     })
     if (res.ok) {
       setContent('')
+      setVisibility('public')
       const newPost = await res.json()
       setPosts(prev => [newPost, ...prev])
     } else {
@@ -75,6 +77,15 @@ export default function ProfilePage() {
           placeholder="投稿内容を入力..."
           className="p-2 border rounded"
         />
+        <select
+          value={visibility}
+          onChange={e => setVisibility(e.target.value)}
+          className="p-2 border rounded"
+        >
+          <option value="public">公開</option>
+          <option value="private">非公開</option>
+          <option value="followers">フォロワー限定</option>
+        </select>
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
           投稿
         </button>

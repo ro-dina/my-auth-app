@@ -17,13 +17,30 @@ model User {
   password String
   createdAt DateTime @default(now())
   posts Post[]
+
+  //フォロー関係
+  followers Follow[] @relation("Following")
+  following Follow[] @relation("Follower")
 }
 
 //Postモデル
 model Post {
   id        Int      @id @default(autoincrement())
   content   String
+  visibility String @default("public") // "public" | "private" | "followers"
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
+}
+
+//followモデル
+model Follow {
+  id         Int  @id @default(autoincrement())
+  follower   User @relation("Follower", fields: [followerId], references: [id])
+  followerId Int
+
+  following   User @relation("Following", fields: [followingId], references: [id])
+  followingId Int
+
+  @@unique([followerId, followingId]) //重複フォロー対策
 }
