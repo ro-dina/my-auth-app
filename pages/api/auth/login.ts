@@ -2,18 +2,31 @@ import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import { signToken } from '../../../lib/auth'
 import { NextApiRequest, NextApiResponse  } from 'next'
+import { z } from 'zod'
+import { isRateLimited } from '../../../lib/rateLimit'
 
 const prisma = new PrismaClient()
+
+const loginSchema = z.object({
+    email: z.string().email(),
+    password: z.string().min(1, 'パスワードを入力してください')
+})
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Email and password are required' })
     }
     
+    const result = loginSchema.safeParse(req.body)
+    if (!result.success) {
+        return res.status(400).json({ message: 'Invalid input', errors: result.error.format() })
+    }
     const { email, password } = req.body
 
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required' })
+    //レートリミットチェック
+    const key = req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || email
+    if (isRateLimited(key)) {
+        return res.status(429).json({ message: 'ログイン試行が多すぎます。しばらく待ってから再試行してください。'})
     }
 
     const user = await prisma.user.findUnique({ where: { email } })
