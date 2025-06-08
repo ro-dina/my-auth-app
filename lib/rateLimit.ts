@@ -34,3 +34,8 @@ export function isRateLimited(key: string): boolean{
     attempts.set(key, { count: record.count + 1, lastAttempt: now})
     return false
 }
+
+//リセット
+export function resetAttempts(key: string){
+    attempts.delete(key)
+}

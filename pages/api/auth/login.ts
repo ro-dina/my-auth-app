@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import { signToken } from '../../../lib/auth'
 import { NextApiRequest, NextApiResponse  } from 'next'
 import { z } from 'zod'
-import { isRateLimited } from '../../../lib/rateLimit'
+import { isRateLimited, resetAttempts } from '../../../lib/rateLimit'
 
 const prisma = new PrismaClient()
 
@@ -40,6 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const token = signToken({ userId: user.id })
+    resetAttempts(key)
 
     res.setHeader('Set-Cookie', `token=${token}; HttpOnly; Path=/; SameSite=Strict; Max-Age=86400 `)
 
