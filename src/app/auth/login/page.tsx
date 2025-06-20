@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import GoogleLoginButton from '../../../../components/GoogleLoginButton'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -61,6 +62,10 @@ export default function LoginPage() {
 
         <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">ログイン</button>
       </form>
+
+      <div className = "mt-6">
+        <GoogleLoginButton />
+      </div>
     </div>
   )
 }
