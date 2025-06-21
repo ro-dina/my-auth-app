@@ -4,97 +4,107 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import { compare } from "bcryptjs";
 
+const prisma = new PrismaClient();
+
 declare module "next-auth" {
-    interface Session {
-        user: {
-            name?: string | null;
-            email?: string | null;
-            image?: string | null;
-            id: string;
-        };
-    }
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  }
 }
 
 declare module "next-auth/jwt" {
-    interface JWT {
-        sub?: string;
-    }
+  interface JWT {
+    id?: string; // DBのユーザーID
+  }
 }
 
-const prisma = new PrismaClient();
-
 export const authOptions: NextAuthOptions = {
-    session: {
-        strategy: "jwt",
-    },
-    providers: [
-        //Google
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        }),
+  session: {
+    strategy: "jwt",
+  },
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
 
-        //Email + Password
-        CredentialsProvider({
-            name: "Credentials",
-            credentials: {
-                email: { label: "Email", type: "email" },
-                password: {label: "Password", type: "password"},
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials) return null;
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!user || !user.password) return null;
+
+        const isValid = await compare(credentials.password, user.password);
+        if (!isValid) return null;
+
+        return {
+          id: user.id, // ここでDBのidを返す
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
+      },
+    }),
+  ],
+
+  callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+        });
+
+        if (!existingUser) {
+          const newUser = await prisma.user.create({
+            data: {
+              email: user.email!,
+              name: user.name ?? "",
+              image: user.image ?? "",
             },
-            async authorize(credentials){
-                if (!credentials) return null;
+          });
+          user.id = newUser.id;
+        } else {
+          user.id = existingUser.id;
+        }
+      }
 
-                const user = await prisma.user.findUnique({
-                    where: { email: credentials?.email},
-                });
-
-                if (!user || !user.password) return null;
-
-                const isValid = await compare(credentials.password, user.password);
-                if (!isValid) return null;
-
-                return {
-                    id: String(user.id),
-                    email: user.email,
-                    name: user.name ?? null,
-                };
-            },
-        }),
-    ],
-    callbacks: {
-        async signIn({ user, account }) {
-            //googleログインでユーザがいなければ追加
-            if (account?.provider === "google"){
-                const existingUser = await prisma.user.findUnique({
-                    where: { email: user.email! },
-                });
-
-                if (!existingUser) {
-                    await prisma.user.create({
-                        data: {
-                            email: user.email!,
-                            name: user.name,
-                            image: user.image,
-                        },
-                    });
-                }
-            }
-            return true;
-        },
-        async session({ session, token }) {
-            if (token){
-                session.user.id = token.sub!;
-            }
-            return session;
-        },
-        async jwt({ token }){
-            return token;
-        },
+      return true;
     },
-    pages: {
-        signIn: "/auth/login",
+
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id; // DBのID（String）をJWTに流す
+      }
+      return token;
     },
-    secret: process.env.NEXTAUTH_SECRET,
+
+    async session({ session, token }) {
+      if (session.user && token.id) {
+        session.user.id = token.id;
+      }
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: "/auth/login",
+  },
+
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 export default NextAuth(authOptions);

@@ -12,7 +12,7 @@ datasource db {
 
 //ユーザーテーブル
 model User {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid())
   email String @unique
   password String?
   name String?
@@ -32,17 +32,17 @@ model Post {
   visibility String @default("public") // "public" | "private" | "followers"
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  userId    String
 }
 
 //followモデル
 model Follow {
   id         Int  @id @default(autoincrement())
   follower   User @relation("Follower", fields: [followerId], references: [id])
-  followerId Int
+  followerId String
 
   following   User @relation("Following", fields: [followingId], references: [id])
-  followingId Int
+  followingId String
 
   @@unique([followerId, followingId]) //重複フォロー対策
 }

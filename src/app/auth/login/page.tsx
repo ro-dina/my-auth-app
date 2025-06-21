@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import GoogleLoginButton from '../../../../components/GoogleLoginButton'
 
 export default function LoginPage() {
@@ -11,24 +12,21 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setErrors({}) //リセット
+    setErrors({})
 
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
     })
-    if (res.ok) {
-      router.push('/profile') // ログイン後のページへ
-    } else {    //zodエラーの受け取り
-      const data = await res.json()
-      if (data.errors){
-        setErrors({
-          email: data.errors.email?._errors?.[0],
-          password: data.errors.password?._errors?.[0],
-        })
+
+    if (res?.ok) {
+      router.push('/profile') // 認証成功後のリダイレクト
+    } else {
+      if (res?.error?.includes("Invalid")) {
+        setErrors({ email: "メールアドレスかパスワードが正しくありません" })
       } else {
-        alert(data.message || 'ログインに失敗しました')
+        alert(res?.error || "ログインに失敗しました")
       }
     }
   }
@@ -37,8 +35,7 @@ export default function LoginPage() {
     <div className="max-w-md mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-4">ログイン</h1>
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
-        {/* zodのユーザーへのデバッグ */}
-        <div>       
+        <div>
           <input
             type='email'
             placeholder='Email'
@@ -63,7 +60,7 @@ export default function LoginPage() {
         <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">ログイン</button>
       </form>
 
-      <div className = "mt-6">
+      <div className="mt-6">
         <GoogleLoginButton />
       </div>
     </div>
