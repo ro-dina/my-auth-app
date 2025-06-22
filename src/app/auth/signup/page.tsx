@@ -6,11 +6,26 @@ import GoogleLoginButton from '../../../../components/GoogleLoginButton'
 export default function SignupPage() {
     const [email, setEmail ] = useState('')
     const [password, setPassword] = useState('')
-    const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({})
+    const [agreed, setAgreed] = useState(false)
     const router = useRouter()
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        setErrors({}) //初期化
+
+        if (!agreed){
+            alert("利用規約とプライバシーポリシーに同意する必要があります。")
+            return
+        }
+
+        if (password !== confirmPassword) {
+            setErrors(prev => ({ ...prev, confirmPassword: 'パスワードが一致しません' }))
+            return
+        }
+
         const res = await fetch('/api/auth/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -24,17 +39,20 @@ export default function SignupPage() {
                 setErrors({
                     email: data.errors.email?._errors?.[0],
                     password: data.errors.password?._errors?.[0],
-                })
-            }alert(data.message || '登録に失敗しました')
+                });
+            } else {
+                alert(data.message || '登録に失敗しました')
+            }
         }
     }
 
     return (
-        <div className="max-w-md mx-auto mt-10">
-            <h1 className="text-2xl font-bold mb-4">サインアップ</h1>
+        <div className="max-w-md mx-auto mt-10 p-6 border rounded-lg shadow">
+            <h1 className="text-2xl font-bold mb-6 text-center">サインアップ</h1>
             <form onSubmit={handleSignup} className="flex flex-col gap-4">
 
-                <div>       
+                <div>
+                    <label className="block text-sm font-medium mb-1">メールアドレス</label>
                     <input
                         type='email'
                         placeholder='Email'
@@ -46,6 +64,7 @@ export default function SignupPage() {
                 </div>
 
                 <div>
+                    <label className="block text-sm font-medium mb-1">パスワード</label>
                     <input
                         type="password"
                         placeholder="Password"
@@ -55,10 +74,46 @@ export default function SignupPage() {
                     />
                     {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                 </div>
-                <button type="submit" className='bg-blue-600 text-white px-4 py-2 rounded'>登録</button>
+
+                <div>
+                    <label className="block text-sm font-medium mb-1">パスワード再入力</label>
+                    <input
+                        type='password'
+                        placeholder='Confirm Password'
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        className="border p-2 rounded w-full"
+                    />
+                    {errors.confirmPassword && (
+                        <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+                    )}
+                </div>
+
+                <label className="flex items-start gap-2 text-sm">
+                    <input
+                        type="checkbox"
+                        checked={agreed}
+                        onChange={(e) => setAgreed(e.target.checked)}
+                        className="mt-1"
+                    />
+                    <span>
+                        <a href="/terms" className="underline mr-2 text-blue-600 hover:text-blue-800" target="_blank">利用規約</a>と
+                        <a href="/privacy" className="underline ml-1 text-blue-600 hover:text-blue-800" target="_blank">プライバシーポリシー</a>
+                        に同意します。
+                        <br />(登録ボタンを押すと規約に同意したものとみなされます)
+                    </span>
+                </label>
+
+                <button
+                    type="submit"
+                    className={`px-4 py-2 rounded text-white ${agreed ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                    disabled={!agreed}
+                >
+                    登録
+                </button>
             </form>
 
-            <div className = "mt-6">
+            <div className="mt-6 text-center">
                 <GoogleLoginButton />
             </div>
         </div>

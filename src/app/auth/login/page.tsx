@@ -63,6 +63,12 @@ export default function LoginPage() {
       <div className="mt-6">
         <GoogleLoginButton />
       </div>
+
+      <div className="text-sm text-gray-500 mt-6">
+        <a href="/terms" className="underline mr-4">利用規約</a>
+        <a href="/privacy" className="underline">プライバシーポリシー</a>
+      </div>
+
     </div>
   )
 }
