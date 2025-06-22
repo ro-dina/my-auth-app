@@ -2,11 +2,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import GoogleLoginButton from '../../../../components/GoogleLoginButton'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function SignupPage() {
     const [email, setEmail ] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({})
     const [agreed, setAgreed] = useState(false)
     const router = useRouter()
@@ -65,25 +68,45 @@ export default function SignupPage() {
 
                 <div>
                     <label className="block text-sm font-medium mb-1">パスワード</label>
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        className="border p-2 rounded w-full"
-                    />
+                    <div className="relative">
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Password"
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            className="border p-2 rounded w-full pr-10"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(prev => !prev)}
+                            className="absolute right-2 top-2"
+                            aria-label="パスワード表示切り替え"
+                        >
+                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                    </div>
                     {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                 </div>
 
                 <div>
                     <label className="block text-sm font-medium mb-1">パスワード再入力</label>
-                    <input
-                        type='password'
-                        placeholder='Confirm Password'
-                        value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
-                        className="border p-2 rounded w-full"
-                    />
+                    <div className="relative">
+                        <input
+                            type={showConfirmPassword ? 'text' : 'password'}
+                            placeholder='Confirm Password'
+                            value={confirmPassword}
+                            onChange={e => setConfirmPassword(e.target.value)}
+                            className="border p-2 rounded w-full pr-10"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(prev => !prev)}
+                            className="absolute right-2 top-2"
+                            aria-label="確認用パスワード表示切り替え"
+                        >
+                            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
+                    </div>
                     {errors.confirmPassword && (
                         <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
                     )}
