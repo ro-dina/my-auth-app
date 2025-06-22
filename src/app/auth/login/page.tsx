@@ -3,10 +3,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import GoogleLoginButton from '../../../../components/GoogleLoginButton'
+import { Eye, EyeOff } from 'lucide-react' 
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
   const router = useRouter()
 
@@ -35,7 +37,9 @@ export default function LoginPage() {
     <div className="max-w-md mx-auto mt-10">
       <h1 className="text-2xl font-bold mb-4">ログイン</h1>
       <form onSubmit={handleLogin} className="flex flex-col gap-4">
+
         <div>
+          <label className="block text-sm font-medium mb-1">メールアドレス</label>
           <input
             type='email'
             placeholder='Email'
@@ -47,13 +51,24 @@ export default function LoginPage() {
         </div>
 
         <div>
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            className="border p-2 rounded w-full"
-          />
+          <label className="block text-sm font-medium mb-1">パスワード</label>
+          <div className='relative'>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className="border p-2 rounded w-full"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(prev => !prev)}
+              className="absolute right-2 top-2"
+              aria-label="パスワード表示切り替え"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
           {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
         </div>
 

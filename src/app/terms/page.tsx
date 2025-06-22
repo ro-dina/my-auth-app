@@ -53,7 +53,9 @@ export default function TermsPage() {
       ) : (
         <div>
           <h1 className="text-2xl font-bold mb-4">Terms of Service</h1>
-          <p className="mb-4">These Terms of Service ("Terms") govern your use of this application ("App").</p>
+          <p className="mb-4">
+            These Terms of Service (&quot;Terms&quot;) govern your use of this application (&quot;App&quot;).
+          </p>
 
           <h2 className="text-xl font-semibold mt-6">1. Application</h2>
           <p>These Terms apply to all relationships between the user and the operator of the App regarding the use of the App.</p>
