@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import GoogleLoginButton from '../../../../components/GoogleLoginButton'
 import { Eye, EyeOff } from 'lucide-react'
+import { z } from "zod"
 
 export default function SignupPage() {
     const [email, setEmail ] = useState('')
@@ -10,9 +11,33 @@ export default function SignupPage() {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    //const [passwordStrength, setPasswordStrength] = useState(0)
     const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string }>({})
     const [agreed, setAgreed] = useState(false)
     const router = useRouter()
+
+    const signupSchema = z.object({
+        email: z.string().email("有効なメールアドレスを入力してください"),
+        password: z.string().min(8, "8文字以上で入力してください"),
+        confirmPassword: z.string(),
+    }).refine(data => data.password === data.confirmPassword, {
+        path: ["confirmPassword"],
+        message: "パスワードが一致しません",
+    })
+
+    //強度チェック
+    const getPasswordStrength = (pwd: string) => {
+        let strength = 0
+        if (pwd.length >= 8) strength++
+        if (/[A-Z]/.test(pwd)) strength++
+        if (/[a-z]/.test(pwd)) strength++
+        if (/[0-9]/.test(pwd)) strength++
+        if (/[^A-Za-z0-9]/.test(pwd)) strength++
+        return strength
+    }
+
+    const passwordStrength = getPasswordStrength(password)
+    const strengthLabel = ['弱い', 'やや弱い', '普通', 'やや強い', '強力'][passwordStrength - 1] || ''
 
     const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -24,8 +49,20 @@ export default function SignupPage() {
             return
         }
 
+        /*
         if (password !== confirmPassword) {
             setErrors(prev => ({ ...prev, confirmPassword: 'パスワードが一致しません' }))
+            return
+        }
+        */
+        const result = signupSchema.safeParse({ email, password, confirmPassword })
+        if (!result.success) {
+            const fieldErrors = result.error.format()
+            setErrors({
+                email: fieldErrors.email?._errors?.[0],
+                password: fieldErrors.password?._errors?.[0],
+                confirmPassword: fieldErrors.confirmPassword?._errors?.[0],
+            })
             return
         }
 
@@ -86,6 +123,22 @@ export default function SignupPage() {
                         </button>
                     </div>
                     {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+
+                    {/* パスワード強度メータ */}
+                    {password && (
+                        <div className="mt-2">
+                            <div className="w-full h-2 bg-gray-200 rounded">
+                                <div
+                                    className={`h-2 rounded transition-all duration-300`}
+                                    style={{
+                                        width: `${(passwordStrength / 5) * 100}%`,
+                                        backgroundColor: ['#f87171', '#facc15', '#60a5fa', '#38bdf8', '#22c55e'][passwordStrength - 1] || 'transparent',
+                                    }}
+                                />
+                            </div>
+                            <p className="text-xs mt-1 text-gray-600">強度: {strengthLabel}</p>
+                        </div>
+                    )}
                 </div>
 
                 <div>
