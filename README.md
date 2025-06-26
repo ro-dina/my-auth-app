@@ -31,9 +31,3 @@
 | Lint           | ESLint + eslint-config-next   | ^9 / 15.3.3    |
 
 ---
-
-
-
-```bash
-git clone https://github.com/あなたのユーザー名/リポジトリ名.git
-cd リポジトリ名
