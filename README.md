@@ -5,6 +5,9 @@
 ## デモ動画
 https://github.com/user-attachments/assets/a3b3619e-1d5d-428c-a7b6-09d69b9ac8e3
 
+## レートリミット
+<img width="476" alt="スクリーンショット 2025-06-28 20 56 35" src="https://github.com/user-attachments/assets/4e61d116-5080-4496-a57a-43be57ab0f02" />
+
 ## 主な機能
 
 - セッションベースのログイン・ログアウト（`NextAuth.js` 使用）
@@ -16,6 +19,7 @@ https://github.com/user-attachments/assets/a3b3619e-1d5d-428c-a7b6-09d69b9ac8e3
 - 利用規約・プライバシーポリシー（日本語・英語）への同意必須
 - Zodによるメール・パスワードの入力バリデーション
 - 投稿機能（ユーザー認証後にのみ投稿可能／ログイン確認用）
+- レートリミット機能(5回の失敗で10分間ログイン不可)
 
 
 ## 使用技術・ライブラリ
