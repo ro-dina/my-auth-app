@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import { compare } from "bcryptjs";
+import { isRateLimited, resetAttempts } from "../../../lib/rateLimit";
 
 const prisma = new PrismaClient();
 
@@ -42,6 +43,13 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials) return null;
 
+        const { email } = credentials;
+        const key = email.toLowerCase();
+
+        if (isRateLimited(key)){
+          throw new Error("ログイン試行が多すぎます。しばらく待ってから再試行してください。")
+        }
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
@@ -50,6 +58,8 @@ export const authOptions: NextAuthOptions = {
 
         const isValid = await compare(credentials.password, user.password);
         if (!isValid) return null;
+
+        resetAttempts(key);
 
         return {
           id: user.id, // ここでDBのidを返す

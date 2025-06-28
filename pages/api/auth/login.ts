@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+/*import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import { signToken } from '../../../lib/auth'
 import { NextApiRequest, NextApiResponse  } from 'next'
@@ -48,4 +48,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     res.setHeader('Set-Cookie', `token=${token}; HttpOnly; Path=/; SameSite=Strict; Max-Age=86400 `)
 
     return res.status(200).json({ id: user.id, email: user.email })
-}
+}*/
