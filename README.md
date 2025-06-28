@@ -1,37 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js 認証機能付きウェブアプリ
 
-## Getting Started
+このアプリは、**Next.js** と **NextAuth.js** を使用して構築された、セッションベースの認証・認可機能を備えたウェブアプリです。Googleアカウントによるログインや、メールアドレス・パスワードによるアカウント作成をサポートします。
 
-First, run the development server:
+## デモ動画
+https://github.com/user-attachments/assets/a3b3619e-1d5d-428c-a7b6-09d69b9ac8e3
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## レートリミット
+<img width="476" alt="スクリーンショット 2025-06-28 20 56 35" src="https://github.com/user-attachments/assets/4e61d116-5080-4496-a57a-43be57ab0f02" />
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 主な機能
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- セッションベースのログイン・ログアウト（`NextAuth.js` 使用）
+- Googleアカウントによるサインイン
+- メールアドレスとパスワードによるアカウント作成
+- パスワード確認入力欄（確認ボックス）
+- パスワードの強度を判定するメーター機能
+- パスワードの表示／非表示切り替えボタン（目のアイコン付き）
+- 利用規約・プライバシーポリシー（日本語・英語）への同意必須
+- Zodによるメール・パスワードの入力バリデーション
+- 投稿機能（ユーザー認証後にのみ投稿可能／ログイン確認用）
+- レートリミット機能(5回の失敗で10分間再試行不可)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## 使用技術・ライブラリ
 
-To learn more about Next.js, take a look at the following resources:
+| カテゴリ       | ライブラリ／ツール            | バージョン     |
+|----------------|-------------------------------|----------------|
+| フレームワーク | Next.js                       | 15.3.3         |
+| 認証           | next-auth                     | ^4.24.11       |
+| バリデーション | zod                           | ^3.25.56       |
+| UI             | Tailwind CSS                  | ^3.4.1         |
+| アイコン       | lucide-react                  | ^0.522.0       |
+| DBクライアント | Prisma + @prisma/client       | ^6.8.2         |
+| 暗号化         | bcrypt / bcryptjs             | ^6.0.0 / ^3.0.2|
+| JWT            | jsonwebtoken                  | ^9.0.2         |
+| 言語           | TypeScript                    | ^5.8.3         |
+| Lint           | ESLint + eslint-config-next   | ^9 / 15.3.3    |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
+---
